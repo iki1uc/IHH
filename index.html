@@ -2,29 +2,80 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>4u – Response Layer</title>
+<title>IHH · Innen‑Hoch‑Himmel</title>
+
+<!-- Globale Schock‑ID -->
+<meta name="respo-id" content="!">
 
 <style>
-body{background:#000;color:#0f0;font-family:monospace;padding:20px;}
-pre{background:#111;padding:20px;border:1px solid #333;}
-button{background:#111;color:#0f0;border:1px solid #333;padding:8px 16px;}
+  body { background:#000; color:#55ccff; font-family:Consolas, monospace; padding:20px; }
+  h1 { color:#55ccff; text-shadow:0 0 10px #55ccff; }
+
+  .axis-btn { 
+    display:block; 
+    margin:6px 0; 
+    padding:8px; 
+    font-weight:bold; 
+    color:#000; 
+    border-radius:4px; 
+  }
+
+  .active { opacity:1.0; }
+  .inactive { opacity:0.3; }
+
+  .ihh { background:#55ccff; }
 </style>
 </head>
 
 <body>
 
-<h1>4u – Response Layer</h1>
+<h1>IHH · Innen‑Hoch‑Himmel</h1>
+<p>ID aktiv: <strong>!</strong></p>
 
-<button onclick="show()">RESPO</button>
+<!-- IHH Achse -->
+<a id="IHH" class="axis-btn ihh active">IHH · Innen‑Hoch‑Himmel</a>
 
-<pre id="out">Bereit...</pre>
+<!-- CSV‑Ausgaben -->
+<h2>Kern‑Matrix</h2>
+<pre id="kern"></pre>
 
-<script type="module">
-import { respo } from "./respo.js";
+<h2>Neue Stations‑Buchstaben</h2>
+<pre id="buchstaben"></pre>
 
-function show(){
-  out.textContent = JSON.stringify(respo, null, 2);
+<h2>Stations‑Funktionen</h2>
+<pre id="funktionen"></pre>
+
+<h2>System‑Check</h2>
+<pre id="check"></pre>
+
+<script>
+const RESPO_ID = "!";
+
+async function loadCSV(path) {
+  const res = await fetch(path);
+  const text = await res.text();
+  return text.split("\n").map(r => r.split(","));
 }
+
+async function loadAll() {
+  const kern = await loadCSV("modul-kern-3.csv");
+  const buchstaben = await loadCSV("neue-station-buchstabe-3.csv");
+  const funktionen = await loadCSV("station-funktion-11.csv");
+  const check = await fetch("system-check.item").then(r => r.text());
+
+  document.getElementById("kern").textContent =
+    JSON.stringify(kern, null, 2);
+
+  document.getElementById("buchstaben").textContent =
+    JSON.stringify(buchstaben, null, 2);
+
+  document.getElementById("funktionen").textContent =
+    JSON.stringify(funktionen, null, 2);
+
+  document.getElementById("check").textContent = check;
+}
+
+loadAll();
 </script>
 
 </body>
